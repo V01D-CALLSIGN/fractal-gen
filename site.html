@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometric Fractal Generator</title>
+    <style>
+        /* General body styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e293b;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Header styles */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            color: #a0aec0;
+        }
+
+        /* Glass effect container */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Form elements styles */
+        label {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #2d3748;
+            color: #e2e8f0;
+            border: none;
+            font-size: 1.125rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            background-color: #4a5568;
+            box-shadow: 0 0 10px rgba(100, 150, 255, 0.7);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #3182ce;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.125rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #2b6cb0;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            background-color: #2c5282;
+            transform: translateY(0);
+        }
+
+        /* Canvas styling */
+        #fractalCanvas {
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Biometric Fractal Generator</h1>
+            <p>Create mesmerizing fractals with biometric-inspired inputs</p>
+        </header>
+
+        <div class="glass">
+            <label for="biometricInput">Enter Biometric Value (e.g., Heart Rate)</label>
+            <input type="number" id="biometricInput" placeholder="Enter a number (60 - 120)">
+            <button onclick="generateFractal()">Generate Fractal</button>
+        </div>
+
+        <canvas id="fractalCanvas" width="800" height="800"></canvas>
+    </div>
+
+    <script>
+        function generateFractal() {
+            const biometricValue = parseInt(document.getElementById('biometricInput').value) || 60;
+
+            const canvas = document.getElementById('fractalCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const zoom = 1 + (biometricValue - 60) / 40;
+            const iterations = Math.floor(50 + (biometricValue - 60) * 2);
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const imgData = ctx.createImageData(width, height);
+
+            const xMin = -2.0 / zoom;
+            const xMax = 1.0 / zoom;
+            const yMin = -1.5 / zoom;
+            const yMax = 1.5 / zoom;
+
+            const xStep = (xMax - xMin) / width;
+            const yStep = (yMax - yMin) / height;
+
+            for (let py = 0; py < height; py++) {
+                for (let px = 0; px < width; px++) {
+                    const x0 = xMin + px * xStep;
+                    const y0 = yMin + py * yStep;
+
+                    let x = 0;
+                    let y = 0;
+                    let iteration = 0;
+
+                    while (x * x + y * y <= 4 && iteration < iterations) {
+                        const xTemp = x * x - y * y + x0;
+                        y = 2 * x * y + y0;
+                        x = xTemp;
+                        iteration++;
+                    }
+
+                    const color = iteration === iterations ? 0 : (iteration * 255 / iterations);
+
+                    const pixelIndex = (py * width + px) * 4;
+                    imgData.data[pixelIndex] = color;      // Red
+                    imgData.data[pixelIndex + 1] = color;  // Green
+                    imgData.data[pixelIndex + 2] = color;  // Blue
+                    imgData.data[pixelIndex + 3] = 255;    // Alpha
+                }
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+        }
+    </script>
+</body>
+</html>
